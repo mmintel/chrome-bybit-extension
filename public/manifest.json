@@ -14,5 +14,11 @@
   },
   "permissions": [
     "activeTab"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://*.bybit.com/*"],
+      "js": ["./static/js/content.js"]
+    }
   ]
 }
