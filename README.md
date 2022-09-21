@@ -21,3 +21,7 @@ Basically just watch this [Youtube video](https://www.youtube.com/watch?v=dqItYj
 ## Disclaimer
 
 This project is a third party tool and not associated with Bybit. Use at your own risk. This extension only works with Bybit as it reads market data to save you time. If you are just looking for a calculator to use on any exchange you should go to [Kite's Risk Calculator](https://risk-reward-calc.netlify.app/).
+
+## Credits
+
+Credits go to to [Kite's Youtube Channel](https://www.youtube.com/c/KiteHD) who came up with this idea, I just ported it to a Chrome Extension so it's easier to use on Bybit.
