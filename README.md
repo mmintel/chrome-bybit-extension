@@ -1,6 +1,6 @@
 # Bybit Extension for Chrome (or Brave)
 
-> ## This extensions helps sizing your positions to keep consistend risk and reward without the hassle.
+> ## This extensions helps sizing your positions to keep consistent risk and reward without the hassle.
 
 <img src="docs/screenshot.png" alt="Chrome Bybit Extension Screenshot" width="400px" />
 
