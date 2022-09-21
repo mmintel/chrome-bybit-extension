@@ -1,46 +1,27 @@
-# Getting Started with Create React App
+# Bybit Extension for Chrome (or Brave)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+> ## This extensions helps sizing your positions to keep consistent risk and reward without the hassle.
 
-## Available Scripts
+<img src="docs/screenshot.png" alt="Chrome Bybit Extension Screenshot" width="400px" />
 
-In the project directory, you can run:
+## Features
+* Automatically reads your balance and market price
+* Calculates stoploss, risk and margin based on your balance
+* Returns the perfect leverage for your trades in order to keep consistent risk to reward
+* Does not do any kind of automation, it calculates numbers to copy and paste into your next trade
 
-### `npm start`
+## How to use
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Basically just watch this [Youtube video](https://www.youtube.com/watch?v=dqItYjkiTBY) to find out how to size your positions using this calculator.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Support this project
 
-### `npm test`
+This project is free of charge but coding and maintaining requires a lot of coffee. If this tool saves you time it would be awesome if you pay for my next coffee and leave a [donation](https://paypal.me/marcmintel) so I can keep going. 🙏
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Disclaimer
 
-### `npm run build`
+This project is a third party tool and not associated with Bybit. Use at your own risk. This extension only works with Bybit as it reads market data to save you time. If you are just looking for a calculator to use on any exchange you should go to [Kite's Risk Calculator](https://risk-reward-calc.netlify.app/).
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Credits
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+Credits go to to [Kite's Youtube Channel](https://www.youtube.com/c/KiteHD) who came up with this idea, I just ported it to a Chrome Extension so it's easier to use on Bybit.
