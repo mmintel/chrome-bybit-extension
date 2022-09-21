@@ -382,8 +382,8 @@ function App() {
         .
       </p>
       <p className="py-4 mt-auto text-xs text-center text-gray-500">
-        <a className="underline" href="#">
-          Buy me a coffe if you like this.
+        <a className="underline" href="https://www.paypal.me/marcmintel">
+          Buy me a coffe if this tool saves you time 🙌
         </a>
       </p>
     </div>
