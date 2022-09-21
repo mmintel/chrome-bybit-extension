@@ -10,13 +10,13 @@
 * Returns the perfect leverage for your trades in order to keep consistent risk to reward
 * Does not do any kind of automation, it calculates numbers to copy and paste into your next trade
 
-## Support this project
-
-This project is free of charge but coding and maintaining requires a lot of coffee. If this tool saves you time it would be awesome if you pay for my next coffee and leave a [donation](https://paypal.me/marcmintel) so I can keep going. 🙏
-
 ## How to use
 
 Basically just watch this [Youtube video](https://www.youtube.com/watch?v=dqItYjkiTBY) to find out how to size your positions using this calculator.
+
+## Support this project
+
+This project is free of charge but coding and maintaining requires a lot of coffee. If this tool saves you time it would be awesome if you pay for my next coffee and leave a [donation](https://paypal.me/marcmintel) so I can keep going. 🙏
 
 ## Disclaimer
 
