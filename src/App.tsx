@@ -8,14 +8,13 @@ import {
   MessageRequest,
   MessageResponse,
 } from "./types";
+import { DecimalsIcon } from "./components/DecimalsIcon";
 
 enum PersistableSetting {
   MARGIN,
   STOPLOSS,
   RISK,
 }
-
-// 5% (stoploss) von margin 20€ sind 1€. 1€ sind 10% vom risk 10€. also brauche ich 10x leverage um auf 10€ risk zu kommen.
 
 function App() {
   const [tabID, setTabID] = useState<chrome.tabs.Tab["id"]>(0);
@@ -33,28 +32,29 @@ function App() {
   const [marginStored, setMarginStored] = useState(true);
   const [stoplossStored, setStoplossStored] = useState(true);
   const [riskStored, setRiskStored] = useState(true);
+  const [decimals, setDecimals] = useState(2);
 
   useEffect(() => {
-    if (stoplossRelative) {
-      console.log("OVERWRITE STOPLOSS");
-      setStoplossAbsolute(marketPrice - (marketPrice * stoplossRelative) / 100);
+    if (stoplossRelative && marketPrice) {
+      setStoplossAbsolute(
+        marketPrice +
+          ((marketPrice * stoplossRelative) / 100) *
+            (tradeType === TradeType.LONG ? -1 : 1)
+      );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [marketPrice]);
+  }, [marketPrice, stoplossRelative, tradeType]);
 
   useEffect(() => {
-    if (marginRelative) {
+    if (marginRelative && equity) {
       setMarginAbsolute((equity * marginRelative) / 100);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [equity]);
+  }, [equity, marginRelative]);
 
   useEffect(() => {
-    if (riskRelative) {
+    if (riskRelative && equity) {
       setRiskAbsolute((equity * riskRelative) / 100);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [equity]);
+  }, [equity, riskRelative]);
 
   useEffect(() => {
     setLeverage(
@@ -90,14 +90,17 @@ function App() {
           // market price is changed and useEffect then overwrites stoploss and margin
           setTimeout(() => {
             if (response.stoploss.val) {
-              console.log("INITIAL SET STOPLOSS");
               setStoplossAbsolute(response.stoploss.val);
-              // TODO relative stoploss
+              setStoplossRelative(
+                (100 * response.stoploss.val) / response.marketPrice.val
+              );
             }
 
             if (response.margin.val) {
               setMarginAbsolute(response.margin.val);
-              // TODO relative margin
+              setMarginRelative(
+                (100 * response.margin.val) / response.equity.val
+              );
             }
           }, 0);
         }
@@ -110,6 +113,8 @@ function App() {
     setStoplossAbsolute,
     setTradeType,
     tabID,
+    marketPrice,
+    equity,
   ]);
 
   useEffect(() => {
@@ -136,13 +141,7 @@ function App() {
   }, [tabID, tradeType]);
 
   const storeSetting = (setting: PersistableSetting, value: any) => {
-    chrome.storage.sync.set({ [String(setting)]: value }, function () {
-      console.log("Value is set to " + value);
-      chrome.storage.sync.get(String(setting), function (result) {
-        console.log("result", result);
-        value = result[String(setting)];
-      });
-    });
+    chrome.storage.sync.set({ [String(setting)]: value });
   };
 
   const getSetting = (setting: PersistableSetting): Promise<any> => {
@@ -175,26 +174,38 @@ function App() {
   return (
     <div className="flex flex-col h-full p-8">
       <div>
-        <h1 className="mb-4 text-lg">Bybit Risk:Reward Calculator</h1>
-        <Toggle
-          label={
-            <span className="text-lg uppercase">
-              {tradeType === TradeType.LONG ? "Long" : "Short"}
-            </span>
-          }
-          className="mb-4"
-          enabled={tradeType === TradeType.LONG}
-          onChange={(val) =>
-            setTradeType(val ? TradeType.LONG : TradeType.SHORT)
-          }
-        />
+        <h1 className="mb-4 text-lg font-bold uppercase">
+          Bybit Risk:Reward Calculator
+        </h1>
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <Toggle
+            label={
+              <span className="text-lg uppercase">
+                {tradeType === TradeType.LONG ? "Long" : "Short"}
+              </span>
+            }
+            enabled={tradeType === TradeType.LONG}
+            onChange={(val) =>
+              setTradeType(val ? TradeType.LONG : TradeType.SHORT)
+            }
+          />
+          <Input
+            id="decimals"
+            label="Decimals"
+            type="number"
+            append={<DecimalsIcon className="w-6 h-6" />}
+            value={decimals}
+            onChange={(e) => setDecimals(Number(e.target.value))}
+            showLabel
+          />
+        </div>
         <Input
           label="Equity"
           id="requity"
           type="number"
           prepend="$"
           append={unit}
-          value={equity}
+          value={equity.toFixed(decimals)}
           disabled
           className="mb-4"
           showLabel
@@ -205,7 +216,7 @@ function App() {
           type="number"
           prepend="$"
           append={unit}
-          value={marketPrice}
+          value={marketPrice.toFixed(decimals)}
           disabled
           className="mb-4"
           showLabel
@@ -223,7 +234,7 @@ function App() {
               setStoplossAbsolute(Number(e.target.value));
               setStoplossStored(false);
             }}
-            value={stoplossAbsolute}
+            value={stoplossAbsolute.toFixed(decimals)}
             className="mb-2"
           />
           <Input
@@ -233,7 +244,9 @@ function App() {
             prepend="%"
             onChange={(e) => {
               setStoplossAbsolute(
-                marketPrice - (marketPrice * Number(e.target.value)) / 100
+                marketPrice +
+                  ((marketPrice * Number(e.target.value)) / 100) *
+                    (tradeType === TradeType.LONG ? -1 : 1)
               );
               setStoplossRelative(Number(e.target.value));
               setStoplossStored(false);
@@ -262,7 +275,7 @@ function App() {
             type="number"
             prepend="$"
             append={unit}
-            value={marginAbsolute}
+            value={marginAbsolute.toFixed(decimals)}
             onChange={(e) => {
               setMarginRelative((100 * Number(e.target.value)) / equity);
               setMarginAbsolute(Number(e.target.value));
@@ -303,7 +316,7 @@ function App() {
             label="Risk Absolute"
             id="risk"
             type="number"
-            value={riskAbsolute}
+            value={riskAbsolute.toFixed(decimals)}
             step={0.1}
             onChange={(e) => {
               setRiskRelative((100 * Number(e.target.value)) / equity);
@@ -383,7 +396,7 @@ function App() {
       </p>
       <p className="py-4 mt-auto text-xs text-center text-gray-500">
         <a className="underline" href="https://www.paypal.me/marcmintel">
-          Buy me a coffe if this tool saves you time 🙌
+          Buy me a coffee ☕
         </a>
       </p>
     </div>

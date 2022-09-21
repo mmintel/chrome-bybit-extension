@@ -5,6 +5,8 @@
 html,
 body,
 #root {
+  @apply bg-secondary-500;
+  @apply text-primary-500;
   width: 500px;
   height: 750px;
 }

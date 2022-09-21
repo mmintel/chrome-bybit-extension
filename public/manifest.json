@@ -4,9 +4,9 @@
   "version": "1.0",
   "manifest_version": 3,
   "icons": {
-    "16": "logo192.png",
-    "48": "logo192.png",
-    "128": "logo192.png"
+    "16": "logo512.png",
+    "48": "logo512.png",
+    "128": "logo512.png"
   },
   "action": {
     "default_popup": "index.html",
