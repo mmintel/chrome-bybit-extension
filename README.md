@@ -16,4 +16,4 @@ This project is free of charge but coding and maintaining requires a lot of coff
 
 ## Disclaimer
 
-This project is a third party tool and not associated with Bybit. Use at your own risk.
+This project is a third party tool and not associated with Bybit. Use at your own risk. This extension only works with Bybit as it reads market data to save you time. If you are just looking for a calculator to use on any exchange you should go to [Kite's Risk Calculator](https://risk-reward-calc.netlify.app/).
