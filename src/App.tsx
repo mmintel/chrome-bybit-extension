@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { SaveIcon } from "./components/SaveIcon";
 import { Input } from "./components/Input";
 import { Toggle } from "./components/Toggle";
 import {
@@ -7,6 +8,12 @@ import {
   MessageRequest,
   MessageResponse,
 } from "./types";
+
+enum PersistableSetting {
+  MARGIN,
+  STOPLOSS,
+  RISK,
+}
 
 // 5% (stoploss) von margin 20€ sind 1€. 1€ sind 10% vom risk 10€. also brauche ich 10x leverage um auf 10€ risk zu kommen.
 
@@ -23,24 +30,31 @@ function App() {
   const [leverage, setLeverage] = useState(1);
   const [marketPrice, setMarketPrice] = useState(0);
   const [tradeType, setTradeType] = useState<TradeType>(TradeType.LONG);
+  const [marginStored, setMarginStored] = useState(true);
+  const [stoplossStored, setStoplossStored] = useState(true);
+  const [riskStored, setRiskStored] = useState(true);
 
   useEffect(() => {
     if (stoplossRelative) {
+      console.log("OVERWRITE STOPLOSS");
       setStoplossAbsolute(marketPrice - (marketPrice * stoplossRelative) / 100);
     }
-  }, [marketPrice, stoplossRelative, setStoplossAbsolute]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [marketPrice]);
 
   useEffect(() => {
     if (marginRelative) {
       setMarginAbsolute((equity * marginRelative) / 100);
     }
-  }, [equity, marginRelative, setMarginAbsolute]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [equity]);
 
   useEffect(() => {
     if (riskRelative) {
       setRiskAbsolute((equity * riskRelative) / 100);
     }
-  }, [equity, riskRelative, setRiskAbsolute]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [equity]);
 
   useEffect(() => {
     setLeverage(
@@ -71,8 +85,21 @@ function App() {
           setEquity(response.equity.val);
           setUnit(response.equity.unit);
           setMarketPrice(response.marketPrice.val);
-          setStoplossAbsolute(response.stoploss.val);
           setTradeType(response.tradeType ?? TradeType.LONG);
+
+          // market price is changed and useEffect then overwrites stoploss and margin
+          setTimeout(() => {
+            if (response.stoploss.val) {
+              console.log("INITIAL SET STOPLOSS");
+              setStoplossAbsolute(response.stoploss.val);
+              // TODO relative stoploss
+            }
+
+            if (response.margin.val) {
+              setMarginAbsolute(response.margin.val);
+              // TODO relative margin
+            }
+          }, 0);
         }
       );
     }
@@ -107,6 +134,43 @@ function App() {
       } as MessageRequest);
     }
   }, [tabID, tradeType]);
+
+  const storeSetting = (setting: PersistableSetting, value: any) => {
+    chrome.storage.sync.set({ [String(setting)]: value }, function () {
+      console.log("Value is set to " + value);
+      chrome.storage.sync.get(String(setting), function (result) {
+        console.log("result", result);
+        value = result[String(setting)];
+      });
+    });
+  };
+
+  const getSetting = (setting: PersistableSetting): Promise<any> => {
+    return new Promise((resolve) => {
+      chrome.storage.sync.get(String(setting), function (result) {
+        resolve(result[String(setting)]);
+      });
+    });
+  };
+
+  useEffect(() => {
+    (async () => {
+      const margin = await getSetting(PersistableSetting.MARGIN);
+      if (margin) {
+        setMarginRelative(margin);
+      }
+
+      const stoploss = await getSetting(PersistableSetting.STOPLOSS);
+      if (stoploss) {
+        setStoplossRelative(stoploss);
+      }
+
+      const risk = await getSetting(PersistableSetting.RISK);
+      if (risk) {
+        setRiskRelative(risk);
+      }
+    })();
+  }, []);
 
   return (
     <div className="flex flex-col h-full p-8">
@@ -146,7 +210,7 @@ function App() {
           className="mb-4"
           showLabel
         />
-        <fieldset>
+        <fieldset className="my-4">
           <legend>Stoploss</legend>
           <Input
             label="Stoploss Absolute"
@@ -157,9 +221,10 @@ function App() {
             onChange={(e) => {
               setStoplossRelative((100 * Number(e.target.value)) / marketPrice);
               setStoplossAbsolute(Number(e.target.value));
+              setStoplossStored(false);
             }}
             value={stoplossAbsolute}
-            className="mb-4"
+            className="mb-2"
           />
           <Input
             label="Stoploss Relative"
@@ -171,13 +236,25 @@ function App() {
                 marketPrice - (marketPrice * Number(e.target.value)) / 100
               );
               setStoplossRelative(Number(e.target.value));
+              setStoplossStored(false);
             }}
+            append={
+              !stoplossStored && (
+                <SaveIcon
+                  className="w-6 h-6 cursor-pointer"
+                  onClick={() => {
+                    storeSetting(PersistableSetting.STOPLOSS, stoplossRelative);
+                    setStoplossStored(true);
+                  }}
+                />
+              )
+            }
             value={stoplossRelative.toFixed(2)}
-            className="mb-4"
+            className="mb-2"
             step={0.1}
           />
         </fieldset>
-        <fieldset>
+        <fieldset className="my-4">
           <legend>Margin</legend>
           <Input
             label="Margin Absolute"
@@ -189,9 +266,10 @@ function App() {
             onChange={(e) => {
               setMarginRelative((100 * Number(e.target.value)) / equity);
               setMarginAbsolute(Number(e.target.value));
+              setMarginStored(false);
             }}
             step={0.1}
-            className="mb-4"
+            className="mb-2"
           />
           <Input
             label="Margin Relative"
@@ -202,12 +280,24 @@ function App() {
             onChange={(e) => {
               setMarginRelative(Number(e.target.value));
               setMarginAbsolute((equity * Number(e.target.value)) / 100);
+              setMarginStored(false);
             }}
             step={0.1}
-            className="mb-4"
+            append={
+              !marginStored && (
+                <SaveIcon
+                  className="w-6 h-6 cursor-pointer"
+                  onClick={() => {
+                    storeSetting(PersistableSetting.MARGIN, marginRelative);
+                    setMarginStored(true);
+                  }}
+                />
+              )
+            }
+            className="mb-2"
           />
         </fieldset>
-        <fieldset>
+        <fieldset className="my-4">
           <legend>Risk</legend>
           <Input
             label="Risk Absolute"
@@ -218,10 +308,11 @@ function App() {
             onChange={(e) => {
               setRiskRelative((100 * Number(e.target.value)) / equity);
               setRiskAbsolute(Number(e.target.value));
+              setRiskStored(false);
             }}
             prepend="$"
             append={unit}
-            className="mb-4"
+            className="mb-2"
           />
           <Input
             label="Risk Relative"
@@ -232,9 +323,21 @@ function App() {
             onChange={(e) => {
               setRiskRelative(Number(e.target.value));
               setRiskAbsolute((equity * Number(e.target.value)) / 100);
+              setRiskStored(false);
             }}
             prepend="%"
-            className="mb-4"
+            append={
+              !riskStored && (
+                <SaveIcon
+                  className="w-6 h-6 cursor-pointer"
+                  onClick={() => {
+                    storeSetting(PersistableSetting.RISK, riskRelative);
+                    setRiskStored(true);
+                  }}
+                />
+              )
+            }
+            className="mb-2"
           />
         </fieldset>
         <Input
@@ -267,7 +370,21 @@ function App() {
         >
           Marc Mintel
         </a>
+        . Available open source on{" "}
+        <a
+          href="https://github.com/mmintel/chrome-bybit-extension"
+          target="_blank"
+          rel="noreferrer"
+          className="underline"
+        >
+          Github
+        </a>
         .
+      </p>
+      <p className="py-4 mt-auto text-xs text-center text-gray-500">
+        <a className="underline" href="#">
+          Buy me a coffe if you like this.
+        </a>
       </p>
     </div>
   );

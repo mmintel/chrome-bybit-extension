@@ -4,6 +4,11 @@ export enum MessageType {
     SET_STOPLOSS = 'SET_STOPLOSS'
 }
 
+export type ValueUnit = {
+    val: number;
+    unit: string;
+}
+
 type GetDOMMessageRequest = {
     type: MessageType.GET_DOM,
 }
@@ -38,18 +43,10 @@ export interface MessagePayload extends Record<MessageType, Record<string, any>>
 
 export interface MessageResponse extends Record<MessageType, Record<string, any>> {
     [MessageType.GET_DOM]: {
-        equity: {
-            val: number,
-            unit: string,
-        };
-        marketPrice: {
-            val: number,
-            unit: string,
-        }
-        stoploss: {
-            val: number,
-            unit: string,
-        },
+        equity: ValueUnit;
+        marketPrice: ValueUnit
+        stoploss: ValueUnit,
+        margin: ValueUnit,
         tradeType: TradeType | null
     },
     [MessageType.SET_TRADE_TYPE]: {

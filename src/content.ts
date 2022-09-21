@@ -15,13 +15,16 @@ const messagesFromReactAppListener = (msg: MessageRequest, sender: chrome.runtim
         const stoploss = parseVal(String(stoplossContent));
         const long = $('.by-checkbox--long').hasClass('by-checkbox--checked');
         const short = $('.by-checkbox--short').hasClass('by-checkbox--checked');
-        
-        console.log('long or short', long, short)
-    
+        const marginContent = $('.by-popover__el:contains("Order by")').closest('.oc__row-bottom--12').find('.by-input__inner').val()
+        const margin = parseVal(String(marginContent));
+
+        console.log(marginContent, margin)
+
         const response: MessageResponse[MessageType.GET_DOM] = {
             equity,
             marketPrice,
             stoploss,
+            margin,
             tradeType: long ? TradeType.LONG : short ? TradeType.SHORT : null,
         };
     

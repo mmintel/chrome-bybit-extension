@@ -1,4 +1,13 @@
-export const parseVal = (str: string) => {
+import { ValueUnit } from "./types";
+
+export const parseVal = (str?: string): ValueUnit => {
+    if (!str) {
+        return {
+            val: 0,
+            unit: '',
+        };
+    }
+    
     const res = str.split(" ");
 
     if (!res) {
@@ -8,8 +17,11 @@ export const parseVal = (str: string) => {
         };
     }
 
+    const val = parseFloat(res[0].replace(/,/g, ''));
+    const unit = res[1];
+
     return {
-        val: parseFloat(res[0].replace(/,/g, '')),
-        unit: res[1]
+        val: Number.isNaN(val) ? 0 : val,
+        unit: unit ?? '',
     }
 }
