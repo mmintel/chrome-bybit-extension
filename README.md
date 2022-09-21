@@ -14,6 +14,10 @@
 
 This project is free of charge but coding and maintaining requires a lot of coffee. If this tool saves you time it would be awesome if you pay for my next coffee and leave a [donation](https://paypal.me/marcmintel) so I can keep going. 🙏
 
+## How to use
+
+Basically just watch this [Youtube video](https://www.youtube.com/watch?v=dqItYjkiTBY) to find out how to size your positions using this calculator.
+
 ## Disclaimer
 
 This project is a third party tool and not associated with Bybit. Use at your own risk. This extension only works with Bybit as it reads market data to save you time. If you are just looking for a calculator to use on any exchange you should go to [Kite's Risk Calculator](https://risk-reward-calc.netlify.app/).
