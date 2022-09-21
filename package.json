@@ -1,5 +1,6 @@
 {
   "name": "chrome-bybit-extension",
+  "description": "A chrome extension to help with position sizing according to risk and reward. Takes your balance, stoploss, margin and risk, returns a the right leverage.",
   "version": "0.1.0",
   "private": true,
   "homepage": ".",

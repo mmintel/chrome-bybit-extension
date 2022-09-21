@@ -18,8 +18,6 @@ const messagesFromReactAppListener = (msg: MessageRequest, sender: chrome.runtim
         const marginContent = $('.by-popover__el:contains("Order by")').closest('.oc__row-bottom--12').find('.by-input__inner').val()
         const margin = parseVal(String(marginContent));
 
-        console.log(marginContent, margin)
-
         const response: MessageResponse[MessageType.GET_DOM] = {
             equity,
             marketPrice,
@@ -43,10 +41,9 @@ const messagesFromReactAppListener = (msg: MessageRequest, sender: chrome.runtim
 
         sendResponse<MessageResponse[MessageType.SET_TRADE_TYPE]>({ success: true })
     } else if (msg.type === MessageType.SET_STOPLOSS) {
-        const stoploss = $('.tpsl-modal-item__title:contains("Stop Loss")').closest('.oc__row-bottom--12').find('.profit-input .by-input__inner');
-        console.log(stoploss, msg.payload.stoploss)
-        stoploss.val(Number(msg.payload.stoploss))
-        // stoploss.trigger($.Event('keypress', { keyCode: 49 }))
+        // TODO Bybit reverts changes to the input.value, need to find another way.
+        // const stoploss = $('.tpsl-modal-item__title:contains("Stop Loss")').closest('.oc__row-bottom--12').find('.profit-input .by-input__inner');
+        // stoploss.val(Number(msg.payload.stoploss))
     }
 }
 

@@ -14,6 +14,7 @@ enum PersistableSetting {
   MARGIN,
   STOPLOSS,
   RISK,
+  DECIMALS,
 }
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
   const [stoplossStored, setStoplossStored] = useState(true);
   const [riskStored, setRiskStored] = useState(true);
   const [decimals, setDecimals] = useState(2);
+  const [decimalsStored, setDecimalsStored] = useState(true);
 
   useEffect(() => {
     if (stoplossRelative && marketPrice) {
@@ -168,6 +170,11 @@ function App() {
       if (risk) {
         setRiskRelative(risk);
       }
+
+      const decimals = await getSetting(PersistableSetting.DECIMALS);
+      if (decimals) {
+        setDecimals(decimals);
+      }
     })();
   }, []);
 
@@ -193,10 +200,25 @@ function App() {
             id="decimals"
             label="Decimals"
             type="number"
-            append={<DecimalsIcon className="w-6 h-6" />}
             value={decimals}
-            onChange={(e) => setDecimals(Number(e.target.value))}
+            onChange={(e) => {
+              setDecimals(Number(e.target.value));
+              setDecimalsStored(false);
+            }}
             showLabel
+            append={
+              !decimalsStored ? (
+                <SaveIcon
+                  className="w-6 h-6 cursor-pointer"
+                  onClick={() => {
+                    storeSetting(PersistableSetting.DECIMALS, decimals);
+                    setDecimalsStored(true);
+                  }}
+                />
+              ) : (
+                <DecimalsIcon className="w-6 h-6" />
+              )
+            }
           />
         </div>
         <Input
