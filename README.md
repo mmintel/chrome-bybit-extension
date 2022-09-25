@@ -14,6 +14,8 @@
 * [ ] Automatically adjust leverage
 * [ ] Persist state per pair
 * [ ] Two way sync for stoploss / margin
+* [ ] Add take profit to calculate risk:reward ratio
+* [ ] Use total equity or current balance (after open trades)
 
 ## Installation
 ### Chrome Store
