@@ -94,7 +94,7 @@ function App() {
             if (response.stoploss.val) {
               setStoplossAbsolute(response.stoploss.val);
               setStoplossRelative(
-                (100 * response.stoploss.val) / response.marketPrice.val
+                100 - (100 * response.stoploss.val) / response.marketPrice.val
               );
             }
 
@@ -121,7 +121,6 @@ function App() {
 
   useEffect(() => {
     if (tabID && stoplossAbsolute) {
-      console.log("send stoploss", stoplossAbsolute);
       chrome.tabs.sendMessage(tabID, {
         type: MessageType.SET_STOPLOSS,
         payload: {
@@ -252,7 +251,7 @@ function App() {
             prepend="$"
             append={unit}
             onChange={(e) => {
-              setStoplossRelative((100 * Number(e.target.value)) / marketPrice);
+              setStoplossRelative(100 - (100 * Number(e.target.value)) / marketPrice);
               setStoplossAbsolute(Number(e.target.value));
               setStoplossStored(false);
             }}
