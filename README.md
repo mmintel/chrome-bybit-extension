@@ -10,6 +10,14 @@
 * Returns the perfect leverage for your trades in order to keep consistent risk to reward
 * Does not do any kind of automation, it calculates numbers to copy and paste into your next trade
 
+## Installation
+### Chrome Store
+Simply add it to your browser via the [Chrome Store](https://chrome.google.com/webstore/detail/bybit-riskreward-calculat/ecafamhaacegchpodedmlffpgaabefco).
+
+### From Source
+Download the build files under [Releases](https://github.com/mmintel/chrome-bybit-extension/releases). Head to your [Chrome or Brave Extensions](chrome://extensions/).
+Click `Load unpacked` and select the `build.zip` file.
+
 ## How to use
 
 Basically just watch this [Youtube video](https://www.youtube.com/watch?v=dqItYjkiTBY) to find out how to size your positions using this calculator.
