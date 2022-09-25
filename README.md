@@ -12,7 +12,7 @@
 
 ## Future Ideas
 * [ ] Automatically adjust leverage
-* [ ] Persist state per pair (e.g. decimals)
+* [ ] Persist state per pair
 * [ ] Two way sync for stoploss / margin
 
 ## Installation

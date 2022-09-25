@@ -8,13 +8,11 @@ import {
   MessageRequest,
   MessageResponse,
 } from "./types";
-import { DecimalsIcon } from "./components/DecimalsIcon";
 
 enum PersistableSetting {
   MARGIN,
   STOPLOSS,
   RISK,
-  DECIMALS,
 }
 
 function App() {
@@ -33,30 +31,6 @@ function App() {
   const [marginStored, setMarginStored] = useState(true);
   const [stoplossStored, setStoplossStored] = useState(true);
   const [riskStored, setRiskStored] = useState(true);
-  const [decimals, setDecimals] = useState(2);
-  const [decimalsStored, setDecimalsStored] = useState(true);
-
-  useEffect(() => {
-    if (stoplossRelative && marketPrice) {
-      setStoplossAbsolute(
-        marketPrice +
-          ((marketPrice * stoplossRelative) / 100) *
-            (tradeType === TradeType.LONG ? -1 : 1)
-      );
-    }
-  }, [marketPrice, stoplossRelative, tradeType]);
-
-  useEffect(() => {
-    if (marginRelative && equity) {
-      setMarginAbsolute((equity * marginRelative) / 100);
-    }
-  }, [equity, marginRelative]);
-
-  useEffect(() => {
-    if (riskRelative && equity) {
-      setRiskAbsolute((equity * riskRelative) / 100);
-    }
-  }, [equity, riskRelative]);
 
   useEffect(() => {
     setLeverage(
@@ -158,24 +132,26 @@ function App() {
       const margin = await getSetting(PersistableSetting.MARGIN);
       if (margin) {
         setMarginRelative(margin);
+        setMarginAbsolute((equity * margin) / 100);
       }
 
       const stoploss = await getSetting(PersistableSetting.STOPLOSS);
       if (stoploss) {
         setStoplossRelative(stoploss);
+        setStoplossAbsolute(
+          marketPrice +
+            ((marketPrice * stoploss) / 100) *
+              (tradeType === TradeType.LONG ? -1 : 1)
+        );
       }
 
       const risk = await getSetting(PersistableSetting.RISK);
       if (risk) {
         setRiskRelative(risk);
-      }
-
-      const decimals = await getSetting(PersistableSetting.DECIMALS);
-      if (decimals) {
-        setDecimals(decimals);
+        setRiskAbsolute((equity * risk) / 100);
       }
     })();
-  }, []);
+  }, [equity, marketPrice, tradeType]);
 
   return (
     <div className="flex flex-col h-full p-8">
@@ -195,30 +171,6 @@ function App() {
               setTradeType(val ? TradeType.LONG : TradeType.SHORT)
             }
           />
-          <Input
-            id="decimals"
-            label="Decimals"
-            type="number"
-            value={decimals}
-            onChange={(e) => {
-              setDecimals(Number(e.target.value));
-              setDecimalsStored(false);
-            }}
-            showLabel
-            append={
-              !decimalsStored ? (
-                <SaveIcon
-                  className="w-6 h-6 cursor-pointer"
-                  onClick={() => {
-                    storeSetting(PersistableSetting.DECIMALS, decimals);
-                    setDecimalsStored(true);
-                  }}
-                />
-              ) : (
-                <DecimalsIcon className="w-6 h-6" />
-              )
-            }
-          />
         </div>
         <Input
           label="Equity"
@@ -226,7 +178,7 @@ function App() {
           type="number"
           prepend="$"
           append={unit}
-          value={equity.toFixed(decimals)}
+          value={equity}
           disabled
           className="mb-4"
           showLabel
@@ -237,7 +189,7 @@ function App() {
           type="number"
           prepend="$"
           append={unit}
-          value={marketPrice.toFixed(decimals)}
+          value={marketPrice}
           disabled
           className="mb-4"
           showLabel
@@ -251,11 +203,13 @@ function App() {
             prepend="$"
             append={unit}
             onChange={(e) => {
-              setStoplossRelative(100 - (100 * Number(e.target.value)) / marketPrice);
               setStoplossAbsolute(Number(e.target.value));
-              setStoplossStored(false);
             }}
-            value={stoplossAbsolute.toFixed(decimals)}
+            onBlur={e => {
+              setStoplossRelative(100 - (100 * Number(e.target.value)) / marketPrice);
+              setStoplossStored(false);  
+            }}
+            value={stoplossAbsolute}
             className="mb-2"
           />
           <Input
@@ -264,12 +218,14 @@ function App() {
             type="number"
             prepend="%"
             onChange={(e) => {
+              setStoplossRelative(Number(e.target.value));
+            }}
+            onBlur={e => {
               setStoplossAbsolute(
                 marketPrice +
                   ((marketPrice * Number(e.target.value)) / 100) *
                     (tradeType === TradeType.LONG ? -1 : 1)
               );
-              setStoplossRelative(Number(e.target.value));
               setStoplossStored(false);
             }}
             append={
@@ -283,7 +239,7 @@ function App() {
                 />
               )
             }
-            value={stoplossRelative.toFixed(2)}
+            value={stoplossRelative}
             className="mb-2"
             step={0.1}
           />
@@ -296,10 +252,12 @@ function App() {
             type="number"
             prepend="$"
             append={unit}
-            value={marginAbsolute.toFixed(decimals)}
+            value={marginAbsolute}
             onChange={(e) => {
-              setMarginRelative((100 * Number(e.target.value)) / equity);
               setMarginAbsolute(Number(e.target.value));
+            }}
+            onBlur={e => {
+              setMarginRelative((100 * Number(e.target.value)) / equity);
               setMarginStored(false);
             }}
             step={0.1}
@@ -313,6 +271,8 @@ function App() {
             value={marginRelative}
             onChange={(e) => {
               setMarginRelative(Number(e.target.value));
+            }}
+            onBlur={e => {
               setMarginAbsolute((equity * Number(e.target.value)) / 100);
               setMarginStored(false);
             }}
@@ -337,11 +297,13 @@ function App() {
             label="Risk Absolute"
             id="risk"
             type="number"
-            value={riskAbsolute.toFixed(decimals)}
+            value={riskAbsolute}
             step={0.1}
             onChange={(e) => {
-              setRiskRelative((100 * Number(e.target.value)) / equity);
               setRiskAbsolute(Number(e.target.value));
+            }}
+            onBlur={e => {
+              setRiskRelative((100 * Number(e.target.value)) / equity);
               setRiskStored(false);
             }}
             prepend="$"
@@ -356,6 +318,8 @@ function App() {
             step={0.1}
             onChange={(e) => {
               setRiskRelative(Number(e.target.value));
+            }}
+            onBlur={e => {
               setRiskAbsolute((equity * Number(e.target.value)) / 100);
               setRiskStored(false);
             }}
