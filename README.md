@@ -14,6 +14,7 @@
 * [ ] Automatically adjust leverage
 * [ ] Persist state per pair (e.g. decimals)
 * [ ] Two way sync for stoploss / margin
+* [ ] Add take profit to calculate risk:reward ratio
 
 ## Installation
 ### Chrome Store
