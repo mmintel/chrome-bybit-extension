@@ -33,3 +33,6 @@ This project is a third party tool and not associated with Bybit. Use at your ow
 ## Credits
 
 Credits go to to [Kite's Youtube Channel](https://www.youtube.com/c/KiteHD) who came up with this idea, I just ported it to a Chrome Extension so it's easier to use on Bybit.
+
+## Contributing
+To setup the project locally you need `npm`, `node` and `yarn`. Run the `yarn build` script and then load the build files into your browser.
