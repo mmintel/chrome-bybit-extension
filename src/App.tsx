@@ -16,25 +16,26 @@ enum PersistableSetting {
 }
 
 function App() {
+  const [loadedDOM, setLoadedDOM] = useState(false);
   const [tabID, setTabID] = useState<chrome.tabs.Tab["id"]>(0);
   const [equity, setEquity] = useState(0);
   const [unit, setUnit] = useState("USDT");
   const [riskRelative, setRiskRelative] = useState(1.5);
   const [riskAbsolute, setRiskAbsolute] = useState(0);
   const [marginRelative, setMarginRelative] = useState(2);
-  const [marginAbsolute, setMarginAbsolute] = useState(2);
+  const [marginAbsolute, setMarginAbsolute] = useState(0);
   const [stoplossAbsolute, setStoplossAbsolute] = useState(0);
   const [stoplossRelative, setStoplossRelative] = useState(5);
   const [leverage, setLeverage] = useState(1);
   const [marketPrice, setMarketPrice] = useState(0);
-  const [tradeType, setTradeType] = useState<TradeType>(TradeType.LONG);
+  const [tradeType, setTradeType] = useState<TradeType | null>(null);
   const [marginStored, setMarginStored] = useState(true);
   const [stoplossStored, setStoplossStored] = useState(true);
   const [riskStored, setRiskStored] = useState(true);
 
   useEffect(() => {
     setLeverage(
-      Math.round(riskAbsolute / ((marginAbsolute * stoplossRelative) / 100))
+      Math.round(riskAbsolute / ((marginAbsolute * stoplossRelative) / 100)) || 1
     );
   }, [stoplossRelative, marginAbsolute, riskAbsolute]);
 
@@ -57,18 +58,17 @@ function App() {
         tabID,
         { type: MessageType.GET_DOM } as MessageRequest,
         (response: MessageResponse[MessageType.GET_DOM]) => {
-          console.log(response);
           setEquity(response.equity.val);
           setUnit(response.equity.unit);
           setMarketPrice(response.marketPrice.val);
-          setTradeType(response.tradeType ?? TradeType.LONG);
+          setTradeType(response.tradeType !== null ? response.tradeType : TradeType.LONG);
 
           // market price is changed and useEffect then overwrites stoploss and margin
           setTimeout(() => {
             if (response.stoploss.val) {
               setStoplossAbsolute(response.stoploss.val);
               setStoplossRelative(
-                100 - (100 * response.stoploss.val) / response.marketPrice.val
+                Math.abs(100 - (100 * response.stoploss.val) / response.marketPrice.val)
               );
             }
 
@@ -78,6 +78,8 @@ function App() {
                 (100 * response.margin.val) / response.equity.val
               );
             }
+
+            setLoadedDOM(true);
           }, 0);
         }
       );
@@ -105,7 +107,7 @@ function App() {
   }, [tabID, stoplossAbsolute]);
 
   useEffect(() => {
-    if (tabID) {
+    if (tabID && tradeType !== null) {
       chrome.tabs.sendMessage(tabID, {
         type: MessageType.SET_TRADE_TYPE,
         payload: {
@@ -129,29 +131,32 @@ function App() {
 
   useEffect(() => {
     (async () => {
-      const margin = await getSetting(PersistableSetting.MARGIN);
-      if (margin) {
-        setMarginRelative(margin);
-        setMarginAbsolute((equity * margin) / 100);
-      }
-
-      const stoploss = await getSetting(PersistableSetting.STOPLOSS);
-      if (stoploss) {
-        setStoplossRelative(stoploss);
-        setStoplossAbsolute(
-          marketPrice +
-            ((marketPrice * stoploss) / 100) *
-              (tradeType === TradeType.LONG ? -1 : 1)
-        );
-      }
-
-      const risk = await getSetting(PersistableSetting.RISK);
-      if (risk) {
-        setRiskRelative(risk);
-        setRiskAbsolute((equity * risk) / 100);
+      if (loadedDOM) {
+        const margin = await getSetting(PersistableSetting.MARGIN);
+        if (margin && marginAbsolute === 0) {
+          setMarginRelative(margin);
+          console.log('init margin absolute', (equity * margin) / 100)
+          setMarginAbsolute((equity * margin) / 100);
+        }
+  
+        const stoploss = await getSetting(PersistableSetting.STOPLOSS);
+        if (stoploss && stoplossAbsolute === 0) {
+          setStoplossRelative(stoploss);
+          setStoplossAbsolute(
+            marketPrice +
+              ((marketPrice * stoploss) / 100) *
+                (tradeType === TradeType.LONG ? -1 : 1)
+          );
+        }
+  
+        const risk = await getSetting(PersistableSetting.RISK);
+        if (risk && riskAbsolute === 0) {
+          setRiskRelative(risk);
+          setRiskAbsolute((equity * risk) / 100);
+        }
       }
     })();
-  }, [equity, marketPrice, tradeType]);
+  }, [equity, loadedDOM, marginAbsolute, marketPrice, riskAbsolute, stoplossAbsolute, tradeType]);
 
   return (
     <div className="flex flex-col h-full p-8">
@@ -206,7 +211,7 @@ function App() {
               setStoplossAbsolute(Number(e.target.value));
             }}
             onBlur={e => {
-              setStoplossRelative(100 - (100 * Number(e.target.value)) / marketPrice);
+              setStoplossRelative(Math.abs(100 - (100 * Number(e.target.value)) / marketPrice));
               setStoplossStored(false);  
             }}
             value={stoplossAbsolute}
