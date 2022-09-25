@@ -10,6 +10,10 @@
 * Returns the perfect leverage for your trades in order to keep consistent risk to reward
 * Does not do any kind of automation, it calculates numbers to copy and paste into your next trade
 
+## Future Ideas
+* [ ] Automatically adjust leverage
+* [ ] Persist state per pair (e.g. decimals)
+
 ## Installation
 ### Chrome Store
 Simply add it to your browser via the [Chrome Store](https://chrome.google.com/webstore/detail/bybit-riskreward-calculat/ecafamhaacegchpodedmlffpgaabefco).
