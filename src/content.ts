@@ -17,6 +17,8 @@ const messagesFromReactAppListener = (msg: MessageRequest, sender: chrome.runtim
         const short = $('.by-checkbox--short').hasClass('by-checkbox--checked');
         const marginContent = $('.by-popover__el:contains("Order by")').closest('.oc__row-bottom--12').find('.by-input__inner').val()
         const margin = parseVal(String(marginContent));
+        const triggerPriceContent = $('.by-otp__field:contains("Trigger Price")').closest('.oc__row-bottom--12').find('.by-input__inner').val();
+        const triggerPrice = parseVal(String(triggerPriceContent));
 
         const response: MessageResponse[MessageType.GET_DOM] = {
             equity,
@@ -24,6 +26,7 @@ const messagesFromReactAppListener = (msg: MessageRequest, sender: chrome.runtim
             stoploss,
             margin,
             tradeType: long ? TradeType.LONG : short ? TradeType.SHORT : null,
+            triggerPrice,
         };
     
         console.log('[content.js]. Message response', response);

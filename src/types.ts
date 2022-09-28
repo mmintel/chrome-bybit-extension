@@ -44,7 +44,8 @@ export interface MessagePayload extends Record<MessageType, Record<string, any>>
 export interface MessageResponse extends Record<MessageType, Record<string, any>> {
     [MessageType.GET_DOM]: {
         equity: ValueUnit;
-        marketPrice: ValueUnit
+        marketPrice: ValueUnit,
+        triggerPrice: ValueUnit,
         stoploss: ValueUnit,
         margin: ValueUnit,
         tradeType: TradeType | null
