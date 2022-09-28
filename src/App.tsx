@@ -91,14 +91,6 @@ function App() {
                       (tradeType === TradeType.LONG ? -1 : 1)
                 );
               } else {
-                console.log(
-                  "init stoploss abs",
-                  _price +
-                    ((_price * stoplossRelative) / 100) *
-                      (tradeType === TradeType.LONG ? -1 : 1),
-                  _price,
-                  stoplossRelative
-                );
                 setStoplossAbsolute(
                   _price +
                     ((_price * stoplossRelative) / 100) *
@@ -125,6 +117,7 @@ function App() {
         }
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     setEquity,
     setUnit,
@@ -134,13 +127,7 @@ function App() {
     tabID,
     price,
     equity,
-    riskAbsolute,
-    stoplossAbsolute,
     tradeType,
-    marginAbsolute,
-    riskRelative,
-    stoplossRelative,
-    marginRelative,
   ]);
 
   useEffect(() => {
