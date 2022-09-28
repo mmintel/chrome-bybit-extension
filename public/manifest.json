@@ -2,7 +2,7 @@
   "short_name": "Bybit R:R",
   "name": "Bybit Risk:Reward Calculator",
   "description": "A chrome extension to help with position sizing according to risk and reward.",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "manifest_version": 3,
   "icons": {
     "16": "logo512.png",
